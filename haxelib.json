@@ -1,0 +1,24 @@
+{
+	"name": "coconut.html",
+	"classPath": "src",
+	"dependencies": {
+		"coconut.ui": "",
+		"tink_htmlstring": ""
+	},
+	"url": "https://github.com/MVCoconut/coconut.html/",
+	"contributors": [
+		"back2dos"
+	],
+	"version": "0.0.0",
+	"releasenote": "Initial version",
+	"tags": [
+		"ui",
+		"coconut",
+		"reactive",
+		"ssr",
+		"html",
+		"cross",
+		"template"
+	],
+	"license": "MIT"
+}
