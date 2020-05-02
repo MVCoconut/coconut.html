@@ -11,11 +11,14 @@ using tink.MacroApi;
 
 class Setup {
 
-  static function addTags() {
+  static function perform() {
     tink.hxx.Helpers.setCustomTransformer('coconut.html.FakeCallback', {
       reduceType: t -> t,
       postprocessor: PUntyped(e -> macro @:pos(e.pos) null),
     });
+  }
+
+  static function addTags() {
 
     var ret = Context.getBuildFields();
 
@@ -34,11 +37,10 @@ class Setup {
         pos: tag.pos,
         access: [AStatic, APublic, AInline],
         kind: FFun({
-          // var et = tag.domCt;
           var args = [
             {
               name: 'hxxMeta',
-              type: macro : HxxMeta<Dynamic>,
+              type: macro : HxxMeta,
               opt: false
             },
             {

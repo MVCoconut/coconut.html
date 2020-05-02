@@ -48,7 +48,3 @@ private class Tag implements RenderResultObject {
     }
   }
 }
-private typedef HxxMeta<T> = {
-  @:optional var key(default, never):Key;
-  @:optional var ref(default, never):coconut.ui.Ref<T>;
-}

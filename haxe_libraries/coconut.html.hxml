@@ -3,3 +3,4 @@
 -lib tink_htmlstring
 -lib coconut.ui
 -lib tink_domspec
+extraParams.hxml
