@@ -1,6 +1,8 @@
 import coconut.ui.*;
 import coconut.Ui.hxx;
 
+import js.html.*;
+
 class Playground {
 
   static function main() {
@@ -21,7 +23,7 @@ class HelloSubView extends View {
 class HelloView extends View {
   @:ref var sub:HelloSubView;
 
-  function render() '<HelloSubView />';
+  function render() '<HelloSubView ref=$sub />';
 
   override function viewDidMount()
     trace("HelloView afterMounting", sub);

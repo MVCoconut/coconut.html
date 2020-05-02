@@ -9,7 +9,34 @@ class View {
 
   static function init()
     return
-      coconut.ui.macros.ViewBuilder.init(macro : coconut.html.RenderResult, function (c) {
-        // trace(TAnonymous(c.target.export()).toString());
+      coconut.ui.macros.ViewBuilder.init(macro : coconut.html.RenderResult, function (ctx) {
+        var c = ctx.target;
+        c.getConstructor().onGenerate(f -> {
+          f.args.unshift({
+            name: 'hxxMeta',
+            type: macro : coconut.html.HxxMeta
+          });
+        });
+
+        for (l in ctx.lifeCycle) {
+          var fn = l.getFunction().sure();
+          fn.expr = switch fn.ret {
+            case macro : Void: macro @:pos(l.pos) {};
+            default: macro @:pos(l.pos) return null;
+          }
+        }
+
+        for (ref in ctx.refs) {
+          c.removeMember(ref.field);
+          c.removeMember(ref.setter);
+          var name = ref.field.name;
+          c.addMembers(macro class {
+            var $name:Dynamic;
+          });
+        }
+
+        for (f in c)
+          if (f.extractMeta(':clientside').isSuccess())
+            c.removeMember(f);
       });
 }
