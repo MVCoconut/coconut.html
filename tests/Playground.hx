@@ -6,7 +6,7 @@ import js.html.*;
 class Playground {
 
   static function main() {
-    trace(Renderer.hxx('<HelloView />').getHtml());
+    trace(Renderer.render('<HelloView />'));
   }
 }
 
