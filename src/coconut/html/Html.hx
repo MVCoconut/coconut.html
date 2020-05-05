@@ -45,7 +45,7 @@ private class Tag implements RenderResultObject {
         switch val.toString() {
           case null:
           case '': buf.addRaw(' $key');
-          case v: buf.addRaw(' $key=$v');
+          case v: buf.addRaw(' $key="$v"');
         }
       }
 
