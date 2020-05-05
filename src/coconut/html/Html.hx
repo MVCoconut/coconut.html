@@ -7,9 +7,21 @@ import coconut.html.RenderResult;
 class Html {
 }
 
+abstract AttrValue(Dynamic) from Int from String from Bool from Float {
+  public inline function toString():Null<String> {
+    return switch Type.typeof(this) {
+      case TBool if (this): '';
+      case TInt: '' + (this:Int);
+      case TFloat: '' + (this:Float);
+      case TClass(String): tink.HtmlString.escape(this);
+      default: null;
+    }
+  }
+}
+
 private class Tag implements RenderResultObject {
   final tag:String;
-  final attr:DynamicAccess<Dynamic>;
+  final attr:DynamicAccess<AttrValue>;
   final children:Children;
 
   public function new(tag, attr, ?children) {
@@ -26,14 +38,14 @@ private class Tag implements RenderResultObject {
         key = switch key {
           case 'className': 'class';
           case 'htmlFor': 'html';
+          case 'styleCss': 'style';
           default: key.toLowerCase();
         }
-        switch Type.typeof(val) {
-          case TBool: if (val) buf.addRaw(' $key');
-          case TInt: buf.addRaw(' $key="${(val:Int)}"');
-          case TClass(String):
-            buf.addRaw(' $key="${tink.HtmlString.escape(val)}"');
-          default:
+
+        switch val.toString() {
+          case null:
+          case '': buf.addRaw(' $key');
+          case v: buf.addRaw(' $key=$v');
         }
       }
 

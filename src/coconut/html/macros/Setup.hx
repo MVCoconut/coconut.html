@@ -50,7 +50,8 @@ class Setup {
                 macro : $events,
                 macro : {
                   @:hxxCustomAttributes(~/^(data-|aria-)/)
-                  @:optional var attributes(default, never):Dynamic<String>;
+                  @:optional var attributes(default, never):Dynamic<coconut.html.Html.AttrValue>;
+                  @:hxx('style') @:optional var styleCss:String;
                 },
               ].intersect().sure(),
               opt: false
