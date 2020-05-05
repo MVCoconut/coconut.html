@@ -22,6 +22,9 @@ abstract RenderResult(RenderResultObject) to RenderResultObject from RenderResul
 
   @:from static function ofInt(i:Int):RenderResult
     return ofText(Std.string(i));
+
+  static public inline function fragment(attr:{}, children:Children):RenderResult
+    return new Fragment(children);
 }
 
 interface RenderResultObject {
@@ -37,4 +40,14 @@ private class Text implements RenderResultObject {
 
   public function renderInto(buffer:HtmlBuffer)
     buffer.add(text);
+}
+
+private class Fragment implements RenderResultObject {
+  final parts:Children;
+
+  public function new(parts)
+    this.parts = parts;
+
+  public function renderInto(buffer:HtmlBuffer)
+    for (p in parts) p.renderInto(buffer);
 }
