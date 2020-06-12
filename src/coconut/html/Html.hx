@@ -37,7 +37,7 @@ private class Tag implements RenderResultObject {
       for (key => val in attr) {
         key = switch key {
           case 'className': 'class';
-          case 'htmlFor': 'html';
+          case 'htmlFor': 'for';
           case 'styleCss': 'style';
           default: key.toLowerCase();
         }
