@@ -1,17 +1,15 @@
 package ;
 
-import js.html.Element;
-import js.Browser.*;
 import coconut.Ui;
 import coconut.ui.*;
-import coconut.vdom.*;
 
 class RunTests {
 
   static function main() {
-    
+
     travix.Logger.exit(
       try {
+        trace(Renderer.render('<Bar />'));
         travix.Logger.println('... works');
         0;
       }
@@ -21,12 +19,12 @@ class RunTests {
       }
     ); // make sure we exit properly, which is necessary on some targets, e.g. flash & (phantom)js
   }
-  
+
 }
 
 class Foo extends View {
   @:attribute var foo:Int;
-  function render() '<div />';
+  function render() '<div><raw content="<b>so</b> bold" /></div>';
 }
 
 class Bar extends View {

@@ -2,10 +2,38 @@ package coconut.html;
 
 import haxe.DynamicAccess;
 import coconut.html.RenderResult;
+using StringTools;
 
 @:build(coconut.html.macros.Setup.addTags())
 class Html {
+  static public function raw(hxxMeta:HxxMeta, attr:HtmlFragmentAttr)
+    return new HtmlFragment(attr);
 }
+
+private class HtmlFragment implements RenderResultObject {
+
+  final attr:HtmlFragmentAttr;
+  public function new(attr)
+    this.attr = attr;
+
+  public function renderInto(buf:HtmlBuffer):Void {
+    var tag = switch attr.tag {
+      case null: 'div';
+      case v: v;
+    }
+
+    buf.addRaw('<$tag');
+
+    buf.addRaw(switch attr.className {
+      case null: '>';
+      case v: ' class="${(v:String).htmlEscape()}">';
+    });
+
+    buf.addRaw(attr.content + '</$tag>');
+  }
+}
+
+private typedef HtmlFragmentAttr = { content:String, ?className:tink.domspec.ClassName, ?tag:String };
 
 abstract AttrValue(Dynamic) from Int from String from Bool from Float {
   public inline function toString():Null<String> {
