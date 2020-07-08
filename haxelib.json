@@ -3,6 +3,7 @@
 	"classPath": "src",
 	"dependencies": {
 		"coconut.ui": "",
+		"tink_domspec": "",
 		"tink_htmlstring": ""
 	},
 	"url": "https://github.com/MVCoconut/coconut.html/",
