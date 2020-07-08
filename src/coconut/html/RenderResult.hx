@@ -17,11 +17,14 @@ abstract RenderResult(RenderResultObject) to RenderResultObject from RenderResul
         buf.toString();
     });
 
+  static public function raw(s):RenderResult // for some reason @:from here won't work
+    return new Plain(s);
+
   @:from static inline function ofText(s:String):RenderResult
-    return new Text(s);
+    return raw(s);
 
   @:from static function ofInt(i:Int):RenderResult
-    return ofText(Std.string(i));
+    return raw(Std.string(i));
 
   static public inline function fragment(attr:{}, children:Children):RenderResult
     return new Fragment(children);
@@ -31,15 +34,15 @@ interface RenderResultObject {
   function renderInto(buffer:HtmlBuffer):Void;
 }
 
-private class Text implements RenderResultObject {
+private class Plain implements RenderResultObject {
 
-  final text:String;
+  final plain:tink.HtmlString;
 
-  public function new(text)
-    this.text = text;
+  public function new(plain)
+    this.plain = plain;
 
   public function renderInto(buffer:HtmlBuffer)
-    buffer.add(text);
+    buffer.add(plain);
 }
 
 private class Fragment implements RenderResultObject {
