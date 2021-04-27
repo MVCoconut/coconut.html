@@ -1,6 +1,7 @@
 package coconut.html;
 
-@:build(coconut.html.View.init())
+@:build(coconut.ui.macros.ViewBuilder.build((_:coconut.html.RenderResult)))
+@:autoBuild(coconut.html.View.build())
 class View extends ViewBase {
   macro function hxx(e);
 }
