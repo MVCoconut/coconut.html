@@ -1,4 +1,4 @@
-# @install: lix --silent download "haxelib:/tink_state#0.11.0" into tink_state/0.11.0/haxelib
+# @install: lix --silent download "haxelib:/tink_state#1.0.0-beta.2" into tink_state/1.0.0-beta.2/haxelib
 -lib tink_core
--cp ${HAXE_LIBCACHE}/tink_state/0.11.0/haxelib/src
--D tink_state=0.11.0
+-cp ${HAXE_LIBCACHE}/tink_state/1.0.0-beta.2/haxelib/src
+-D tink_state=1.0.0-beta.2

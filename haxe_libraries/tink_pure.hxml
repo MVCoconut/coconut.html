@@ -1,5 +1,5 @@
-# @install: lix --silent download "haxelib:/tink_pure#0.5.1" into tink_pure/0.5.1/haxelib
--lib tink_core
+-D tink_pure=0.3.3
+# @install: lix --silent download "haxelib:/tink_pure#0.3.3" into tink_pure/0.3.3/haxelib
 -lib tink_slice
--cp ${HAXE_LIBCACHE}/tink_pure/0.5.1/haxelib/src
--D tink_pure=0.5.1
+-lib tink_core
+-cp ${HAXE_LIBCACHE}/tink_pure/0.3.3/haxelib/src
