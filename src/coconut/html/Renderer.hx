@@ -7,4 +7,6 @@ class Renderer {
   static public macro function hxx(e);
 
   static public macro function render(e);
+
+  static public macro function renderDocument(e);
 }

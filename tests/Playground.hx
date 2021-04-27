@@ -1,12 +1,9 @@
 import coconut.ui.*;
-import coconut.Ui.hxx;
-
-import js.html.*;
 
 class Playground {
 
   static function main() {
-    trace(Renderer.render('<HelloView />'));
+    trace(Renderer.renderDocument('<html><head><meta charset="utf-8"/><title>Test</title></head><body><HelloView /></body></html>'));
   }
 }
 

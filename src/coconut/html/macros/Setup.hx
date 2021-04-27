@@ -31,8 +31,7 @@ class Setup {
         throw 'assert';
     }
 
-    for (name in tags.keys()) {
-      var tag = tags[name];
+    for (name => tag in tags) {
 
       ret.push({
         name: name,

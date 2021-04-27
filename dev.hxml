@@ -1,6 +1,6 @@
 -lib coconut.html
+-lib travix
 -cp tests
 -main Playground
-# -js bin/js/tests.js
 --interp
 -dce full

@@ -6,4 +6,7 @@ class Renderer {
 
   static function render(markup)
     return macro @:pos(markup.pos) ${hxx(markup)}.getHtml();
+
+  static function renderDocument(markup)
+    return macro @:pos(markup.pos) '<!DOCTYPE html>' + ${hxx(markup)}.getHtml();
 }
