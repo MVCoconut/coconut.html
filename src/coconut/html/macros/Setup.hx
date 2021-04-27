@@ -18,6 +18,8 @@ class Setup {
     });
   }
 
+  static inline var NAMELESS = '';
+
   static function addTags() {
 
     var ret = Context.getBuildFields();
@@ -50,7 +52,7 @@ class Setup {
                 macro : $events,
                 macro : {
                   @:hxxCustomAttributes(~/^(data-|aria-)/)
-                  @:optional var attributes(default, never):Dynamic<coconut.html.Html.AttrValue>;
+                  @:optional var $NAMELESS(default, never):coconut.html.Html.AttrValue;
                   @:hxx('style') @:optional var styleCss:String;
                 },
               ].intersect().sure(),
