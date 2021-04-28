@@ -8,5 +8,5 @@ class Renderer {
     return macro @:pos(markup.pos) ${hxx(markup)}.getHtml();
 
   static function renderDocument(markup)
-    return macro @:pos(markup.pos) '<!DOCTYPE html>' + ${hxx(markup)}.getHtml();
+    return macro @:pos(markup.pos) '<!DOCTYPE html>' + ${render(markup)};
 }
