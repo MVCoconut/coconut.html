@@ -16,7 +16,7 @@ private class HtmlFragment implements RenderResultObject {
   public function new(attr)
     this.attr = attr;
 
-  public function renderInto(buf:HtmlBuffer):Void {
+  public function renderInto(_, buf:HtmlBuffer):Void {
     var tag = switch attr.tag {
       case null: 'div';
       case v: v;
@@ -58,7 +58,7 @@ private class Tag implements RenderResultObject {
     this.children = children;
   }
 
-  public function renderInto(buf:HtmlBuffer):Void {
+  public function renderInto(implicits, buf:HtmlBuffer):Void {
     buf.addRaw('<$tag');
 
     if (attr != null)
@@ -83,7 +83,7 @@ private class Tag implements RenderResultObject {
       default:
         buf.addRaw('>');
         for (c in children)
-          c.renderInto(buf);
+          c.renderInto(implicits, buf);
         buf.addRaw('</$tag>');
     }
   }

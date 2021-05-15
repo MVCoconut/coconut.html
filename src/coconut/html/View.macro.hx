@@ -11,6 +11,10 @@ class View {
     return
       coconut.ui.macros.ViewBuilder.autoBuild({
         renders: macro : coconut.html.RenderResult,
+        implicits: {
+          name: '__coco_implicits',
+          fields: [],
+        },
         afterBuild: ctx -> {
 
           var c = ctx.target;

@@ -1,19 +1,21 @@
 package coconut.html;
 
+import coconut.ui.internal.ImplicitContext;
+
 @:pure
 abstract RenderResult(RenderResultObject) to RenderResultObject from RenderResultObject {
 
   inline function new(n) this = n;
 
-  public inline function renderInto(buf)
-    if (this != null) this.renderInto(buf);
+  public inline function renderInto(implicits, buf)
+    if (this != null) this.renderInto(implicits, buf);
 
   public inline function getHtml()
     return new tink.HtmlString(switch this {
       case null: '';
       case v:
         var buf = new HtmlBuffer();
-        this.renderInto(buf);
+        this.renderInto(new ImplicitContext(), buf);
         buf.toString();
     });
 
@@ -31,7 +33,7 @@ abstract RenderResult(RenderResultObject) to RenderResultObject from RenderResul
 }
 
 interface RenderResultObject {
-  function renderInto(buffer:HtmlBuffer):Void;
+  function renderInto(implicits:ImplicitContext, buffer:HtmlBuffer):Void;
 }
 
 private class Plain implements RenderResultObject {
@@ -41,7 +43,7 @@ private class Plain implements RenderResultObject {
   public function new(plain)
     this.plain = plain;
 
-  public function renderInto(buffer:HtmlBuffer)
+  public function renderInto(implicits, buffer:HtmlBuffer)
     buffer.add(plain);
 }
 
@@ -51,6 +53,6 @@ private class Fragment implements RenderResultObject {
   public function new(parts)
     this.parts = parts;
 
-  public function renderInto(buffer:HtmlBuffer)
-    for (p in parts) p.renderInto(buffer);
+  public function renderInto(implicits, buffer:HtmlBuffer)
+    for (p in parts) p.renderInto(implicits, buffer);
 }

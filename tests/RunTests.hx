@@ -23,8 +23,15 @@ class RunTests {
 }
 
 class Foo extends View {
+  @:implicit var beep:Beep;
   @:attribute var foo:Int;
   function render() '<div><raw content="<b>so</b> bold" /></div>';
+}
+
+@:default(Beep.INST)
+class Beep {
+  static public final INST = new Beep();
+  public function new() {}
 }
 
 class Bar extends View {
