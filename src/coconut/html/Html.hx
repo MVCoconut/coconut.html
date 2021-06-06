@@ -36,15 +36,24 @@ private class HtmlFragment implements RenderResultObject {
 private typedef HtmlFragmentAttr = { content:String, ?className:tink.domspec.ClassName, ?tag:String };
 
 abstract AttrValue(Dynamic) from Int from String from Bool from Float {
-  public inline function toString():Null<String> {
-    return switch Type.typeof(this) {
-      case TBool if (this): '';
-      case TInt: '' + (this:Int);
-      case TFloat: '' + (this:Float);
-      case TClass(String): tink.HtmlString.escape(this);
-      default: null;
-    }
-  }
+  public inline function toString():Null<String>
+    return
+      #if js
+        switch js.Lib.typeof(this) {
+          case 'string': tink.HtmlString.escape(this);
+          case 'boolean' if (this): '';
+          case 'number': '' + (this:Float);
+          default: null;
+        }
+      #else
+        switch Type.typeof(this) {
+          case TBool if (this): '';
+          case TInt: '' + (this:Int);
+          case TFloat: '' + (this:Float);
+          case TClass(String): tink.HtmlString.escape(this);
+          default: null;
+        }
+      #end
 }
 
 private class Tag implements RenderResultObject {
