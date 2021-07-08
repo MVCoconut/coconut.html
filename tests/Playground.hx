@@ -1,4 +1,5 @@
 import coconut.ui.*;
+import coconut.html.Html.*;
 
 class Playground {
 
