@@ -1,7 +1,7 @@
 package ;
 
-import coconut.Ui;
 import coconut.ui.*;
+import coconut.ui.Html.*;
 
 class RunTests {
 

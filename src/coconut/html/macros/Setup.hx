@@ -12,10 +12,6 @@ using tink.MacroApi;
 class Setup {
 
   static function perform() {
-    tink.hxx.Helpers.setCustomTransformer('coconut.html.FakeCallback', {
-      reduceType: t -> t,
-      postprocessor: PUntyped(e -> macro @:pos(e.pos) null),
-    });
   }
 
   static inline var NAMELESS = '';
@@ -58,7 +54,7 @@ class Setup {
               opt: false
             }
           ];
-          var callArgs = [macro $v{name}, macro cast attr];
+          var callArgs = [macro $v{name}, macro $v{tag.kind == VOID}, macro cast attr];
           if (tag.kind != VOID) {
             args.push({
               name: 'children',
@@ -69,7 +65,7 @@ class Setup {
           }
           {
             args: args,
-            expr: macro return new Tag($a{callArgs}),//VNode.native($a{callArgs}),
+            expr: macro return new Tag($a{callArgs}),
             ret: macro : coconut.html.RenderResult
           }
         })

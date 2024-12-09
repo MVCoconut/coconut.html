@@ -1,3 +1,8 @@
 package coconut.html;
 
-abstract FakeCallback(Dynamic) {}
+@:fromHxx(
+  transform = coconut.html.FakeCallback.create(_)
+)
+abstract FakeCallback(Dynamic) {
+  macro static public function create(e);
+}

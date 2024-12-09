@@ -2,6 +2,8 @@ package coconut.html;
 
 import haxe.DynamicAccess;
 import coconut.html.RenderResult;
+import tink.HtmlString;
+
 using StringTools;
 
 @:build(coconut.html.macros.Setup.addTags())
@@ -35,12 +37,13 @@ private class HtmlFragment implements RenderResultObject {
 
 private typedef HtmlFragmentAttr = { content:String, ?className:tink.domspec.ClassName, ?tag:String };
 
+@:transitive
 abstract AttrValue(Dynamic) from Int from String from Bool from Float {
   public inline function toString():Null<String>
     return
       #if js
         switch js.Lib.typeof(this) {
-          case 'string': tink.HtmlString.escape(this);
+          case 'string': HtmlString.escape(this);
           case 'boolean' if (this): '';
           case 'number': '' + (this:Float);
           default: null;
@@ -50,7 +53,7 @@ abstract AttrValue(Dynamic) from Int from String from Bool from Float {
           case TBool if (this): '';
           case TInt: '' + (this:Int);
           case TFloat: '' + (this:Float);
-          case TClass(String): tink.HtmlString.escape(this);
+          case TClass(String): HtmlString.escape(this);
           default: null;
         }
       #end
@@ -58,11 +61,13 @@ abstract AttrValue(Dynamic) from Int from String from Bool from Float {
 
 private class Tag implements RenderResultObject {
   final tag:String;
+  final isVoid:Bool;
   final attr:DynamicAccess<AttrValue>;
   final children:Children;
 
-  public function new(tag, attr, ?children) {
+  public function new(tag, isVoid, attr, ?children) {
     this.tag = tag;
+    this.isVoid = isVoid;
     this.attr = attr;
     this.children = children;
   }
@@ -86,14 +91,12 @@ private class Tag implements RenderResultObject {
         }
       }
 
-    switch children {
-      case null:
-        buf.addRaw('/>');
-      default:
-        buf.addRaw('>');
-        for (c in children)
-          c.renderInto(implicits, buf);
-        buf.addRaw('</$tag>');
-    }
+    buf.addRaw('>');
+
+    if (isVoid) return;
+    
+    for (c in children)
+      c.renderInto(implicits, buf);
+    buf.addRaw('</$tag>');
   }
 }

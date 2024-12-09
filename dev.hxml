@@ -2,5 +2,8 @@
 -lib travix
 -cp tests
 -main Playground
---interp
+# --interp
+--dce full
+-D analyzer-optimize
+-js bin/test.js
 -dce full
