@@ -11,7 +11,15 @@ class RunTests {
       try {
         trace(Renderer.render('<Bar />'));
         travix.Logger.println('... works');
-        0;
+        switch SelectValue.run() {
+          case []:
+            travix.Logger.println('select values work');
+            0;
+          case failures:
+            for (f in failures)
+              travix.Logger.println(f);
+            500;
+        }
       }
       catch (e:Dynamic) {
         travix.Logger.println(Std.string(e));

@@ -71,29 +71,106 @@ private class Tag implements RenderResultObject {
     buf.addRaw('<$tag');
 
     if (attr != null)
-      for (key => val in attr) {
-        key = switch key {
-          case 'className': 'class';
-          case 'htmlFor': 'for';
-          case 'styleCss': 'style';
-          default: key.toLowerCase();
-        }
-
-        switch val.toString() {
-          case null:
-          case '': buf.addRaw(' $key');
-          case v: buf.addRaw(' $key="$v"');
-        }
-      }
+      for (key => val in attr)
+        renderAttr(buf, key, val);
 
     switch children {
       case null:
         buf.addRaw('/>');
       default:
         buf.addRaw('>');
-        for (c in children)
-          c.renderInto(implicits, buf);
+        renderChildren(implicits, buf);
         buf.addRaw('</$tag>');
     }
   }
+
+  function renderAttr(buf:HtmlBuffer, key:String, val:AttrValue) {
+    key = switch key {
+      case 'className': 'class';
+      case 'htmlFor': 'for';
+      case 'styleCss': 'style';
+      default: key.toLowerCase();
+    }
+
+    switch val.toString() {
+      case null:
+      case '': buf.addRaw(' $key');
+      case v: buf.addRaw(' $key="$v"');
+    }
+  }
+
+  function renderChildren(implicits, buf:HtmlBuffer)
+    for (c in children)
+      c.renderInto(implicits, buf);
+
+  function get(name:String):Dynamic
+    return if (attr == null) null else attr[name];
+}
+
+/**
+  Supports `value` on `<select>` as React does: the options rendered within get `selected` if their value matches.
+**/
+private class Select extends Tag {
+
+  static public var current(default, null):Null<SelectValue>;
+
+  override function renderAttr(buf:HtmlBuffer, key:String, val:AttrValue)
+    if (key != 'value') super.renderAttr(buf, key, val);
+
+  override function renderChildren(implicits, buf:HtmlBuffer) {
+    var prev = current;
+    current = switch get('value') {
+      case null: null;
+      case value: new SelectValue(value, get('multiple') == true);
+    }
+    super.renderChildren(implicits, buf);
+    current = prev;
+  }
+}
+
+private class SelectValue {
+  final values:Array<String>;
+  final multiple:Bool;
+  var matched = false;
+
+  public function new(value:Dynamic, multiple:Bool) {
+    this.multiple = multiple || Std.isOfType(value, Array);
+    this.values = if (Std.isOfType(value, Array)) value else [value];
+  }
+
+  public function selects(value:String) {
+    if ((matched && !multiple) || !values.contains(value))
+      return false;
+    return matched = true;
+  }
+}
+
+private class Option extends Tag {
+  override public function renderInto(implicits, buf:HtmlBuffer)
+    switch Select.current {
+      case null:
+        super.renderInto(implicits, buf);
+      case select:
+        var content = new HtmlBuffer();
+        if (children != null)
+          renderChildren(implicits, content);
+        var content = content.toString();
+
+        var selected = select.selects(switch get('value') {
+          case null: ~/[ \t\n\x0C\r]+/g.replace(content, ' ').trim().htmlUnescape();// like the DOM's HTMLOptionElement.value
+          case value: value;
+        });
+
+        buf.addRaw('<option');
+
+        if (attr != null)
+          for (key => val in attr)
+            if (key != 'selected')
+              renderAttr(buf, key, val);
+
+        if (selected)
+          buf.addRaw(' selected');
+
+        buf.addRaw('>$content</option>');
+    }
 }
