@@ -13,6 +13,8 @@ using tink.MacroApi;
 
 class Generator extends tink.hxx.Generator {
 
+  static final attrTypes = new Map<String, Map<String, Type>>();
+
   static function unwrap(e:Expr) 
     return if (e == null) null else switch e.expr {
       case EParenthesis(e) | ECheckType(e, _) | ECast(e, _): unwrap(e);
@@ -58,7 +60,21 @@ class Generator extends tink.hxx.Generator {
                 selected = macro false,
                 vars = [];
 
-            for (f in fields) switch tUnwrap(Context.typeExpr(f.expr)) {
+            var types = switch attrTypes[tagName] {
+              case null: attrTypes[tagName] = [for (f in tag.attr.toType().sure().getFields().sure()) f.name => f.type];
+              case v: v;
+            }
+
+            // non-constants are typed against the attribute's declared type, so that implicit casts apply (e.g. Map to ClassName)
+            function typed(f:ObjectField)
+              return switch [tUnwrap(Context.typeExpr(f.expr)), types[f.field]] {
+                case [e = { expr: TConst(_) }, _] | [e, null]: e;
+                case [_, t]:
+                  var ct = t.toComplex();
+                  tUnwrap(Context.typeExpr(macro @:pos(f.expr.pos) (${f.expr} : $ct)));
+              }
+
+            for (f in fields) switch typed(f) {
               case e if (isOption && f.field == 'selected'):
                 selected = Context.storeTypedExpr(e);
               case e = { expr: TConst(c) }:
@@ -66,17 +82,17 @@ class Generator extends tink.hxx.Generator {
                   value = Context.storeTypedExpr(e);
                 switch c {
                   case TInt(Std.string(_) => s)
-                    | TFloat(s) | TString(_.htmlEscape() => s):
-                    stat.push(' ${f.field}="$s"');
+                    | TFloat(s) | TString(_.htmlEscape(true) => s):
+                    stat.push(' ${Setup.attrName(f.field)}="$s"');
                   case TBool(b):
                     if (b) 
-                      stat.push(' ${f.field}');
+                      stat.push(' ${Setup.attrName(f.field)}');
                   default:
                 }
                 
               case e:
                 var v = Context.storeTypedExpr(e),
-                    attr = ' ${f.field}';
+                    attr = ' ${Setup.attrName(f.field)}';
 
                 if (isOption && f.field == 'value') {
                   vars.push(macro var __coco_optionValue = $v);

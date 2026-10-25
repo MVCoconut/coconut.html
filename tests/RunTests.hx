@@ -11,9 +11,12 @@ class RunTests {
       try {
         trace(Renderer.render('<Bar />'));
         travix.Logger.println('... works');
-        switch SelectValue.run() {
+        var check = new Check();
+        Attributes.run(check);
+        SelectValue.run(check);
+        switch check.failures {
           case []:
-            travix.Logger.println('select values work');
+            travix.Logger.println('attributes and select values work');
             0;
           case failures:
             for (f in failures)
