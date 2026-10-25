@@ -76,27 +76,136 @@ private class Tag implements RenderResultObject {
     buf.addRaw('<$tag');
 
     if (attr != null)
-      for (key => val in attr) {
-        key = switch key {
-          case 'className': 'class';
-          case 'htmlFor': 'for';
-          case 'styleCss': 'style';
-          default: key.toLowerCase();
-        }
-
-        switch val.toString() {
-          case null:
-          case '': buf.addRaw(' $key');
-          case v: buf.addRaw(' $key="$v"');
-        }
-      }
+      for (key => val in attr)
+        renderAttr(buf, key, val);
 
     buf.addRaw('>');
 
     if (isVoid) return;
-    
+
+    renderChildren(implicits, buf);
+    buf.addRaw('</$tag>');
+  }
+
+  function renderAttr(buf:HtmlBuffer, key:String, val:AttrValue) {
+    key = switch key {
+      case 'className': 'class';
+      case 'htmlFor': 'for';
+      case 'styleCss': 'style';
+      default: key.toLowerCase();
+    }
+
+    switch val.toString() {
+      case null:
+      case '': buf.addRaw(' $key');
+      case v: buf.addRaw(' $key="$v"');
+    }
+  }
+
+  function renderChildren(implicits, buf:HtmlBuffer)
     for (c in children)
       c.renderInto(implicits, buf);
-    buf.addRaw('</$tag>');
+
+  function get(name:String):Dynamic
+    return if (attr == null) null else attr[name];
+}
+
+/**
+  Supports `value` on `<select>` as React does: the options rendered within get `selected` if their value matches.
+  The generator only folds selects without a value into plain markup, and options never (see OptionTag).
+**/
+private class Select extends Tag {
+
+  override function renderAttr(buf:HtmlBuffer, key:String, val:AttrValue)
+    if (key != 'value') super.renderAttr(buf, key, val);
+
+  override function renderChildren(implicits, buf:HtmlBuffer) {
+    var prev = SelectValue.current;
+    SelectValue.current = switch get('value') {
+      case null: null;
+      case value: new SelectValue(value, get('multiple') == true);
+    }
+    super.renderChildren(implicits, buf);
+    SelectValue.current = prev;
+  }
+}
+
+@:noCompletion class SelectValue {
+
+  static public var current:Null<SelectValue>;
+
+  final values:Array<String>;
+  final multiple:Bool;
+  var matched = false;
+
+  public function new(value:Dynamic, multiple:Bool) {
+    this.multiple = multiple || Std.isOfType(value, Array);
+    this.values = if (Std.isOfType(value, Array)) value else [value];
+  }
+
+  public function selects(value:String) {
+    if ((matched && !multiple) || !values.contains(value))
+      return false;
+    return matched = true;
+  }
+}
+
+private class Option extends Tag {
+  override public function renderInto(implicits, buf:HtmlBuffer) {
+    var open = new HtmlBuffer();
+    open.addRaw('<option');
+    if (attr != null)
+      for (key => val in attr)
+        if (key != 'selected')
+          renderAttr(open, key, val);
+    OptionTag.render(implicits, buf, open.toString(), get('value'), get('selected') == true, children);
+  }
+}
+
+/**
+  An `<option>` with all attributes but `selected` already rendered into `open`.
+**/
+@:noCompletion class OptionTag implements RenderResultObject {
+
+  final open:String;
+  final value:Null<String>;
+  final selected:Bool;
+  final children:Null<Children>;
+
+  public function new(open, value, selected, children) {
+    this.open = open;
+    this.value = value;
+    this.selected = selected;
+    this.children = children;
+  }
+
+  public function renderInto(implicits, buf:HtmlBuffer)
+    render(implicits, buf, open, value, selected, children);
+
+  static public function render(implicits, buf:HtmlBuffer, open:String, value:Null<String>, selected:Bool, children:Null<Children>) {
+
+    inline function renderChildren(buf:HtmlBuffer)
+      if (children != null)
+        for (c in children)
+          c.renderInto(implicits, buf);
+
+    switch SelectValue.current {
+      case null:
+      case select:
+        if (value == null) {
+          var content = new HtmlBuffer();
+          renderChildren(content);
+          var content = content.toString();
+          // the option's text, like the DOM's HTMLOptionElement.value
+          selected = select.selects(~/[ \t\n\x0C\r]+/g.replace(content, ' ').trim().htmlUnescape());
+          buf.addRaw(open + (if (selected) ' selected>' else '>') + content + '</option>');
+          return;
+        }
+        selected = select.selects(value);
+    }
+
+    buf.addRaw(open + (if (selected) ' selected>' else '>'));
+    renderChildren(buf);
+    buf.addRaw('</option>');
   }
 }

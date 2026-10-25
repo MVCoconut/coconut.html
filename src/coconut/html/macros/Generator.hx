@@ -46,11 +46,24 @@ class Generator extends tink.hxx.Generator {
 
         switch unwrap(args[1]).expr {
           case EObjectDecl(fields):
+            if (tagName == 'select' && Lambda.exists(fields, f -> f.field == 'value'))
+              return super.invoke(name, create, args, pos);// the options need it at runtime, see coconut.html.Html.Select
+
             var dyn = [];
             var stat = [];
 
+            // options must check the select they're in at runtime, see coconut.html.Html.OptionTag
+            var isOption = tagName == 'option',
+                value = macro null,
+                selected = macro false,
+                vars = [];
+
             for (f in fields) switch tUnwrap(Context.typeExpr(f.expr)) {
-              case { expr: TConst(c) }:
+              case e if (isOption && f.field == 'selected'):
+                selected = Context.storeTypedExpr(e);
+              case e = { expr: TConst(c) }:
+                if (isOption && f.field == 'value')
+                  value = Context.storeTypedExpr(e);
                 switch c {
                   case TInt(Std.string(_) => s)
                     | TFloat(s) | TString(_.htmlEscape() => s):
@@ -64,6 +77,11 @@ class Generator extends tink.hxx.Generator {
               case e:
                 var v = Context.storeTypedExpr(e),
                     attr = ' ${f.field}';
+
+                if (isOption && f.field == 'value') {
+                  vars.push(macro var __coco_optionValue = $v);
+                  v = value = macro __coco_optionValue;
+                }
 
                 dyn.push(
                   switch Context.followWithAbstracts(e.t).toString() {
@@ -84,6 +102,15 @@ class Generator extends tink.hxx.Generator {
             var noArgs = switch unwrap(args[2]) {
               case null, macro null, macro []: true;
               default: false;
+            }
+
+            if (isOption) {
+              var open = macro $v{start};
+              for (a in dyn)
+                open = macro $open + $a;
+              var children = if (noArgs) macro null else args[2];
+              vars.push(macro (new coconut.html.Html.OptionTag($open, $value, $selected, $children) : coconut.html.RenderResult));
+              return macro $b{vars};
             }
 
             var end = 

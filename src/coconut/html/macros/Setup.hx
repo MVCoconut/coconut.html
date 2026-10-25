@@ -50,7 +50,12 @@ class Setup {
                   @:optional var $NAMELESS(default, never):coconut.html.Html.AttrValue;
                   @:hxx('style') @:optional var styleCss:String;
                 },
-              ].intersect().sure(),
+              ].concat(switch name {
+                case 'select': [macro : {
+                  @:optional var value(default, never):haxe.extern.EitherType<String, Array<String>>;
+                }];
+                default: [];
+              }).intersect().sure(),
               opt: false
             }
           ];
@@ -65,7 +70,14 @@ class Setup {
           }
           {
             args: args,
-            expr: macro return new Tag($a{callArgs}),
+            expr: {
+              var cls = (switch name {
+                case 'select': 'Select';
+                case 'option': 'Option';
+                default: 'Tag';
+              }).asTypePath();
+              macro return new $cls($a{callArgs});
+            },
             ret: macro : coconut.html.RenderResult
           }
         })
