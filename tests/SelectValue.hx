@@ -2,14 +2,8 @@ import coconut.ui.*;
 import tink.pure.List;
 
 class SelectValue {
-  static public function run() {
-    var failures = [];
-
-    function check(expected:String, actual:String)
-      if (actual != expected)
-        failures.push('expected $expected\n     got $actual');
-
-    check(
+  static public function run(check:Check) {
+    check.html(
       '<select name="s"><option value="a">A</option><option value="b" selected>B</option><option value="c">C</option></select>',
       Renderer.render('
         <select name="s" value="b">
@@ -20,7 +14,7 @@ class SelectValue {
       ')
     );
 
-    check(
+    check.html(
       '<select multiple><option value="a" selected>A</option><option value="b">B</option><option selected>c</option><option>d</option></select>',
       Renderer.render('
         <select multiple value=${['a', 'c']}>
@@ -31,7 +25,7 @@ class SelectValue {
       ')
     );
 
-    check(
+    check.html(
       '<select><option>a</option><option selected>b</option><option>b</option></select><option>b</option>',
       Renderer.render('
         <>
@@ -43,7 +37,7 @@ class SelectValue {
       ')
     );
 
-    check(
+    check.html(
       '<select><option>a</option><option selected>b</option></select>',
       Renderer.render('
         <select>
@@ -53,7 +47,7 @@ class SelectValue {
       ')
     );
 
-    check(
+    check.html(
       '<select><option selected>Tom &amp; Jerry</option></select>',
       Renderer.render('
         <select value="Tom & Jerry">
@@ -63,8 +57,6 @@ class SelectValue {
         </select>
       ')
     );
-
-    return failures;
   }
 }
 

@@ -85,12 +85,7 @@ private class Tag implements RenderResultObject {
   }
 
   function renderAttr(buf:HtmlBuffer, key:String, val:AttrValue) {
-    key = switch key {
-      case 'className': 'class';
-      case 'htmlFor': 'for';
-      case 'styleCss': 'style';
-      default: key.toLowerCase();
-    }
+    key = Html.attrName(key);
 
     switch val.toString() {
       case null:

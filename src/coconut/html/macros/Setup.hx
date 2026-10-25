@@ -20,6 +20,27 @@ class Setup {
 
   static inline var NAMELESS = '';
 
+  static var attrNames:Map<String, String>;
+
+  /**
+    The name an attribute is rendered with: as declared with `@:html` in tink_domspec, otherwise lower cased.
+  **/
+  static public function attrName(field:String):String {
+    if (attrNames == null) {
+      attrNames = ['styleCss' => 'style'];
+      for (tag in tags)
+        for (f in tag.attr.toType().sure().getFields().sure())
+          switch f.meta.extract(':html') {
+            case [{ params: [{ expr: EConst(CString(html)) }] }]: attrNames[f.name] = html;
+            default:
+          }
+    }
+    return switch attrNames[field] {
+      case null: field.toLowerCase();
+      case v: v;
+    }
+  }
+
   static function addTags() {
 
     var ret = Context.getBuildFields();
@@ -88,6 +109,23 @@ class Setup {
       });
 
     }
+
+    attrName('');
+
+    ret.push({
+      name: 'attrName',
+      pos: Context.currentPos(),
+      access: [AStatic, APublic],
+      kind: FFun({
+        args: [{ name: 'field', type: macro : String }],
+        ret: macro : String,
+        expr: macro return ${ESwitch(
+          macro field,
+          [for (field => html in attrNames) { values: [macro $v{field}], expr: macro $v{html} }],
+          macro field.toLowerCase()
+        ).at()},
+      })
+    });
 
     return ret;
   }
